@@ -296,6 +296,9 @@ Bundle format (schemaVersion 1): `{ format: "docforum.patient-export",
 schemaVersion, exportId, generatedAt, sections: { <name>: { version, items } } }`
 — see §3.1 for where sections come from.
 
+### 4.12 Escrow chain event observations (issue #86)
+
+EscrowEventCursor has one row per deployed escrow contract and persists the Soroban RPC pagination cursor and retention error. EscrowChainEvent is uniquely keyed by (contractId, eventId) and records the contract event, ledger, transaction hash, escrow id, match state, and alert timestamp. These are observations, not a source of payment state: matching checks the locally owned PaymentIntent; the poller never mutates a payment transition.
 ### 4.11 PHI read-access log (Phase 8, issue #45)
 ```
 AccessLog
@@ -327,6 +330,7 @@ Patient-facing query (`GET /patients/me/access-log`) is scoped server-side
 to the caller's own profile (resolved from the authenticated user, never
 from the request) and strips all viewer PII to a role — a deleted viewer
 surfaces as `deleted_user`.
+
 
 ## 5. Key flows (sequence-level, not code)
 

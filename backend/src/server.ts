@@ -3,8 +3,10 @@ import { config } from './config';
 import { pruneLoginAttempts } from './modules/auth/services';
 import { pruneOldAccessLogs } from './modules/audit/services';
 import { startPatientExportJobs } from './jobs/patient-exports';
+import { startEscrowEventPoller } from './jobs/escrow-events';
 import { validatePlatformSigners } from './modules/payments/services/platform-signers';
 import { verifyPaymentsNetwork } from './modules/payments/services';
+
 
 const app = createApp();
 
@@ -60,3 +62,4 @@ pruneTimer.unref();
 
 // Patient data export worker + expiry cleanup (Phase 8, issue #40).
 startPatientExportJobs();
+startEscrowEventPoller();

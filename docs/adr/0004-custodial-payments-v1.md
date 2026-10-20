@@ -100,6 +100,10 @@ terminal intent has no matching order.
   triggered release" is the target once Phase 4/5 exist; v1's admin-only
   gate is the honest interim, not the destination.
 
+
+## Event monitoring and releaser-key alerts (issue #86)
+
+The backend polls Soroban RPC getEvents independently for each configured contract deployment, persisting each page and its cursor together. Events are deduplicated by contract and RPC event id, then matched against the local PaymentIntent state. Unmatched release/refund events raise high-severity structured logs, can be forwarded to ESCROW_EVENT_ALERT_WEBHOOK_URL, and are visible through the admin endpoint. If the RPC retention window has advanced beyond a saved cursor, the poller records an explicit catch-up error and does not silently skip the gap. This detects unexpected terminal contract events; it does not itself protect the releaser key.
 ## Signing provider seam (issue #87)
 
 Payment operations use the `PlatformSigner` interface (`publicKey`, async transaction signing, and optional Soroban auth-entry signing) rather than constructing keypairs in the payments service. The env adapter preserves the current `PLATFORM_PAYER_SECRET` / `PLATFORM_RELEASER_SECRET` behavior. A reference HTTP adapter supports a signer service with role-scoped `GET /signers/{role}/public-key`, `POST /signers/{role}/sign-transaction`, and `POST /signers/{role}/sign-auth-entry` endpoints. Requests carry the network passphrase; the remote public key must match the configured expected address. Errors are sanitized before leaving the adapter.
