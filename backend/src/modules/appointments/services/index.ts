@@ -71,6 +71,22 @@ export async function listMyAppointments(userId: string) {
   return appointmentsRepo.findAppointmentsForPatient(patientProfile.id);
 }
 
+/**
+ * Cross-module entry point for the consultations module: return the
+ * appointment a doctor may act on, or null if the appointment doesn't exist
+ * or isn't theirs. The consultations module never queries `Appointment`
+ * directly — it calls this service instead (AGENTS.md hard rule 4).
+ */
+export async function getAppointmentForDoctor(doctorUserId: string, appointmentId: string) {
+  const appointment = await appointmentsRepo.findAppointmentById(prisma, appointmentId);
+  if (!appointment) return null;
+
+  const doctorProfile = await doctorsService.getDoctorProfileById(appointment.doctorProfileId);
+  if (doctorProfile.userId !== doctorUserId) return null;
+
+  return appointment;
+}
+
 /** Doctor's own scheduled appointments whose booked slot falls on the
  * current server-local calendar day. */
 export async function listDoctorAppointmentsToday(userId: string) {
